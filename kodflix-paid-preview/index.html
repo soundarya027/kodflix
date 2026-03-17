@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>KodFlix Paid Videos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #111827, #020617 55%);
+        color: #e5e7eb;
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 2rem 1.2rem;
+      }
+      .shell {
+        width: 100%;
+        max-width: 1100px;
+        background: rgba(15, 23, 42, 0.96);
+        border-radius: 1.5rem;
+        overflow: hidden;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.9);
+        display: grid;
+        grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+      }
+      @media (max-width: 860px) {
+        .shell {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .left {
+        padding: 2rem 2.25rem;
+        border-right: 1px solid rgba(31, 41, 55, 1);
+        background: radial-gradient(circle at top left, #111827, #020617 65%);
+      }
+      @media (max-width: 860px) {
+        .left {
+          border-right: none;
+          border-bottom: 1px solid rgba(31, 41, 55, 1);
+        }
+      }
+      .right {
+        padding: 1.8rem 2.25rem 2rem;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.3rem;
+      }
+      .logo-mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: conic-gradient(
+          from 150deg,
+          #ef4444,
+          #f97316,
+          #eab308,
+          #22c55e,
+          #3b82f6,
+          #6366f1,
+          #a855f7,
+          #ec4899,
+          #ef4444
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 20px rgba(248, 113, 113, 0.8);
+      }
+      .logo-inner {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #020617;
+      }
+      .logo-text {
+        font-weight: 800;
+        font-size: 1.2rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .logo-text span {
+        background: linear-gradient(to right, #f97316, #facc15, #22c55e);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .tagline {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin-bottom: 1.4rem;
+      }
+      .section-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+      }
+      .section-sub {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        margin-bottom: 1.2rem;
+      }
+      label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #9ca3af;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+      input {
+        width: 100%;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.85);
+        color: #e5e7eb;
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.14s ease, box-shadow 0.14s ease,
+          background 0.14s ease, transform 0.08s ease;
+      }
+      input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7);
+        background: rgba(15, 23, 42, 1);
+        transform: translateY(-1px);
+      }
+      .field {
+        margin-bottom: 0.85rem;
+      }
+      .btn {
+        border-radius: 999px;
+        border: none;
+        padding: 0.6rem 1.4rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(135deg, #f97316, #ec4899);
+        color: white;
+        box-shadow: 0 16px 32px rgba(236, 72, 153, 0.6);
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          filter 0.1s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.45rem;
+      }
+      .btn.secondary {
+        background: transparent;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        box-shadow: none;
+        color: #e5e7eb;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+      .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 1);
+      }
+      .inline-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.6rem;
+        flex-wrap: wrap;
+      }
+      .small {
+        font-size: 0.78rem;
+        color: #9ca3af;
+        margin-top: 0.5rem;
+      }
+      .right-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        gap: 0.75rem;
+      }
+      .right-header h2 {
+        font-size: 1rem;
+      }
+      .videos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .video-card {
+        background: radial-gradient(circle at top left, #020617, #020617);
+        border-radius: 0.9rem;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .video-thumb {
+        position: relative;
+        padding-bottom: 56.25%;
+        background: #111827;
+      }
+      .price-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+        padding: 0.25rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #0b1220;
+        background: rgba(250, 204, 21, 0.95);
+        border: 1px solid rgba(250, 204, 21, 0.9);
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(6px);
+      }
+      .video-thumb iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .video-body {
+        padding: 0.7rem 0.8rem 0.8rem;
+      }
+      .video-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.1rem;
+      }
+      .video-meta {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+      .locked {
+        text-align: center;
+        padding: 2.4rem 1rem;
+        border-radius: 0.9rem;
+        border: 1px dashed rgba(75, 85, 99, 0.9);
+        background: rgba(17, 24, 39, 0.9);
+        margin-top: 1rem;
+      }
+      .locked h3 {
+        font-size: 1rem;
+        margin-bottom: 0.4rem;
+      }
+      .locked p {
+        font-size: 0.86rem;
+        color: #9ca3af;
+        margin-bottom: 0.7rem;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.18rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        margin-top: 0.4rem;
+      }
+      .pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #22c55e;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="left">
+        <div class="logo">
+          <div class="logo-mark">
+            <div class="logo-inner"></div>
+          </div>
+          <div class="logo-text"><span>KodFlix</span></div>
+        </div>
+        <p class="tagline">Sign in to access your private training videos.</p>
+
+        <div id="auth-root"></div>
+      </div>
+
+      <div class="right">
+        <div class="right-header">
+          <h2>Your Premium Videos</h2>
+          <div></div>
+        </div>
+        <div id="videos-root"></div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script>
+      const { useState } = React;
+
+      const DEMO_VIDEOS = [
+        {
+          id: "video1",
+          title: "How to deploy a fullstack app",
+          youtubeId: "dQw4w9WgXcQ",
+          price: 99,
+        },
+        {
+          id: "video2",
+          title: "Understanding JWT authentication",
+          youtubeId: "7Q17ubqLfaM",
+          price: 149,
+        },
+        {
+          id: "video3",
+          title: "MySQL basics for beginners",
+          youtubeId: "9ylj9NR0Lcg",
+          price: 129,
+        },
+        {
+          id: "video4",
+          title: "React basics (components + props)",
+          youtubeId: "Ke90Tje7VS0",
+          price: 199,
+        },
+        {
+          id: "video5",
+          title: "JavaScript async/await in 10 minutes",
+          youtubeId: "V_Kr9OSfDeU",
+          price: 99,
+        },
+        {
+          id: "video6",
+          title: "Node.js crash course",
+          youtubeId: "fBNz5xF-Kx4",
+          price: 179,
+        },
+        {
+          id: "video7",
+          title: "Express.js tutorial (routes + middleware)",
+          youtubeId: "L72fhGm1tfE",
+          price: 159,
+        },
+        {
+          id: "video8",
+          title: "MySQL tutorial for beginners",
+          youtubeId: "7S_tz1z_5bA",
+          price: 149,
+        },
+        {
+          id: "video9",
+          title: "JWT authentication explained",
+          youtubeId: "mbsmsi7l3r4",
+          price: 129,
+        },
+        {
+          id: "video10",
+          title: "Git & GitHub basics",
+          youtubeId: "RGOj5yH7evk",
+          price: 79,
+        },
+        {
+          id: "video11",
+          title: "Deploy to Vercel (beginner friendly)",
+          youtubeId: "b6m6nT7Y8lU",
+          price: 119,
+        },
+        {
+          id: "video12",
+          title: "Build a login UI (HTML/CSS)",
+          youtubeId: "1Rs2ND1ryYc",
+          price: 89,
+        },
+      ];
+
+      const STORAGE_KEY = "kodflix-demo-session";
+
+      function readSession() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch {
+          return null;
+        }
+      }
+
+      function writeSession(session) {
+        if (!session) {
+          localStorage.removeItem(STORAGE_KEY);
+        } else {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+        }
+        window.dispatchEvent(new Event("kodflix-session"));
+      }
+
+      function useSession() {
+        const [session, setSession] = React.useState(() => readSession());
+
+        React.useEffect(() => {
+          function onSession() {
+            setSession(readSession());
+          }
+          window.addEventListener("kodflix-session", onSession);
+          window.addEventListener("storage", onSession);
+          return () => {
+            window.removeEventListener("kodflix-session", onSession);
+            window.removeEventListener("storage", onSession);
+          };
+        }, []);
+
+        return [session, writeSession];
+      }
+
+      function AuthPanel({ session, setSession }) {
+        const [mode, setMode] = useState("login");
+        const [email, setEmail] = useState("");
+        const [password, setPassword] = useState("");
+        const [message, setMessage] = useState("");
+
+        function handleSubmit(e) {
+          e.preventDefault();
+          if (!email || !password) {
+            setMessage("Email and password required");
+            return;
+          }
+
+          if (mode === "register") {
+            writeSession({ email, password, isPaid: false });
+            setMessage("Registered. Please sign in.");
+            setMode("login");
+            return;
+          }
+
+          const saved = readSession();
+          if (!saved) {
+            setMessage("No account found. Please sign up first.");
+            return;
+          }
+          if (saved.email !== email || saved.password !== password) {
+            setMessage("Invalid credentials");
+            return;
+          }
+          setSession({
+            email: saved.email,
+            password: saved.password,
+            isPaid: !!saved.isPaid,
+          });
+          setMessage("Signed in");
+        }
+
+        function handleLogout() {
+          setSession(null);
+          setMessage("");
+        }
+
+        if (session) {
+          return React.createElement(
+            "div",
+            null,
+            React.createElement(
+              "div",
+              { className: "section-title" },
+              "Welcome, ",
+              session.email
+            ),
+            React.createElement(
+              "p",
+              { className: "section-sub" },
+              session.isPaid
+                ? "Your account has access to the training videos."
+                : "Complete payment to unlock all videos."
+            ),
+            React.createElement(
+              "div",
+              { className: "inline-actions" },
+              React.createElement(
+                "button",
+                { className: "btn secondary", onClick: handleLogout },
+                "Log out"
+              )
+            ),
+            message &&
+              React.createElement("p", { className: "small" }, message)
+          );
+        }
+
+        return React.createElement(
+          "form",
+          { onSubmit: handleSubmit },
+          React.createElement(
+            "div",
+            { className: "section-title" },
+            mode === "login" ? "Sign in" : "Create an account"
+          ),
+          React.createElement(
+            "p",
+            { className: "section-sub" },
+            mode === "login"
+              ? "Use your email and password to access your internship training videos."
+              : "Register with an email and password. Then sign in and simulate payment to unlock content."
+          ),
+          React.createElement(
+            "div",
+            { className: "field" },
+            React.createElement("label", null, "Email"),
+            React.createElement("input", {
+              type: "email",
+              required: true,
+              value: email,
+              onChange: (e) => setEmail(e.target.value),
+              autoComplete: "username",
+              placeholder: "you@example.com",
+            })
+          ),
+          React.createElement(
+            "div",
+            { className: "field" },
+            React.createElement("label", null, "Password"),
+            React.createElement("input", {
+              type: "password",
+              required: true,
+              value: password,
+              onChange: (e) => setPassword(e.target.value),
+              autoComplete: "current-password",
+              placeholder: "••••••••",
+            })
+          ),
+          React.createElement(
+            "div",
+            { className: "inline-actions" },
+            React.createElement(
+              "button",
+              { className: "btn", type: "submit" },
+              mode === "login" ? "Sign in" : "Sign up"
+            ),
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "btn secondary",
+                onClick: () =>
+                  setMode(mode === "login" ? "register" : "login"),
+              },
+              mode === "login" ? "Need an account?" : "Have an account?"
+            )
+          ),
+          message && React.createElement("p", { className: "small" }, message)
+        );
+      }
+
+      function YourVideosPanel({ session }) {
+        const myList = session && session.isPaid ? DEMO_VIDEOS.slice(0, 4) : [];
+
+        return React.createElement(
+          "div",
+          { style: { marginTop: "1.2rem" } },
+          React.createElement(
+            "div",
+            { className: "section-title" },
+            "Your Videos"
+          ),
+          React.createElement(
+            "p",
+            { className: "section-sub" },
+            session
+              ? session.isPaid
+                ? "These are unlocked for your account."
+                : "Unlock premium to see your videos here."
+              : "Sign in to see your videos."
+          ),
+          myList.length
+            ? React.createElement(
+                "ul",
+                {
+                  style: {
+                    marginLeft: "1.1rem",
+                    color: "#d1d5db",
+                    fontSize: "0.9rem",
+                  },
+                },
+                myList.map((v) => React.createElement("li", { key: v.id }, v.title))
+              )
+            : null
+        );
+      }
+
+      function VideosPanel({ session, setSession }) {
+        function simulatePayment() {
+          if (!session) return;
+          writeSession({ ...session, isPaid: true });
+          setSession({ ...session, isPaid: true });
+        }
+
+        if (!session) {
+          return React.createElement(
+            "div",
+            { className: "locked" },
+            React.createElement("h3", null, "Sign in to view content"),
+            React.createElement(
+              "p",
+              null,
+              "Create an account or log in on the left. Once signed in, you can simulate payment and unlock the videos."
+            ),
+            React.createElement(
+              "div",
+              { className: "videos-grid" },
+              DEMO_VIDEOS.map((v) =>
+                React.createElement(
+                  "article",
+                  { key: v.id, className: "video-card" },
+                  React.createElement(
+                    "div",
+                    { className: "video-thumb" },
+                    React.createElement(
+                      "div",
+                      { className: "price-badge" },
+                      "₹",
+                      String(v.price)
+                    )
+                  ),
+                  React.createElement(
+                    "div",
+                    { className: "video-body" },
+                    React.createElement("div", { className: "video-title" }, v.title),
+                    React.createElement("div", { className: "video-meta" }, "Locked")
+                  )
+                )
+              )
+            )
+          );
+        }
+
+        if (!session.isPaid) {
+          return React.createElement(
+            "div",
+            { className: "locked" },
+            React.createElement("h3", null, "Library locked"),
+            React.createElement(
+              "p",
+              null,
+              "This demo does not process real money. Click the button below to simulate a payment and grant yourself access."
+            ),
+            React.createElement(
+              "button",
+              { className: "btn", type: "button", onClick: simulatePayment },
+              "Simulate payment and unlock"
+            ),
+            React.createElement(
+              "div",
+              { className: "videos-grid" },
+              DEMO_VIDEOS.map((v) =>
+                React.createElement(
+                  "article",
+                  { key: v.id, className: "video-card" },
+                  React.createElement(
+                    "div",
+                    { className: "video-thumb" },
+                    React.createElement(
+                      "div",
+                      { className: "price-badge" },
+                      "₹",
+                      String(v.price)
+                    )
+                  ),
+                  React.createElement(
+                    "div",
+                    { className: "video-body" },
+                    React.createElement("div", { className: "video-title" }, v.title),
+                    React.createElement("div", { className: "video-meta" }, "Locked")
+                  )
+                )
+              )
+            )
+          );
+        }
+
+        return React.createElement(
+          "div",
+          null,
+          React.createElement(
+            "div",
+            { className: "pill" },
+            React.createElement("span", { className: "pill-dot" }),
+            "Paid access granted"
+          ),
+          React.createElement(
+            "div",
+            { className: "videos-grid" },
+            DEMO_VIDEOS.map((v) =>
+              React.createElement(
+                "article",
+                { key: v.id, className: "video-card" },
+                React.createElement(
+                  "div",
+                  { className: "video-thumb" },
+                  React.createElement(
+                    "div",
+                    { className: "price-badge" },
+                    "₹",
+                    String(v.price)
+                  ),
+                  React.createElement("iframe", {
+                    src: "https://www.youtube.com/embed/" + v.youtubeId + "?rel=0",
+                    title: v.title,
+                    allow:
+                      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+                    allowFullScreen: true,
+                  })
+                ),
+                React.createElement(
+                  "div",
+                  { className: "video-body" },
+                  React.createElement("div", { className: "video-title" }, v.title),
+                  React.createElement(
+                    "div",
+                    { className: "video-meta" },
+                    "YouTube • training"
+                  )
+                )
+              )
+            )
+          )
+        );
+      }
+
+      function LeftApp() {
+        const [session, setSession] = useSession();
+        return React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(AuthPanel, { session, setSession }),
+          React.createElement(YourVideosPanel, { session })
+        );
+      }
+
+      function RightApp() {
+        const [session, setSession] = useSession();
+        return React.createElement(VideosPanel, { session, setSession });
+      }
+
+      ReactDOM.createRoot(document.getElementById("auth-root")).render(
+        React.createElement(LeftApp)
+      );
+      ReactDOM.createRoot(document.getElementById("videos-root")).render(
+        React.createElement(RightApp)
+      );
+    </script>
+  </body>
+</html>
+

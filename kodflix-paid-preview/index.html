@@ -305,84 +305,100 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script>
-      const { useState } = React;
+      const { useState, useEffect } = React;
 
       const DEMO_VIDEOS = [
         {
           id: "video1",
-          title: "How to deploy a fullstack app",
-          youtubeId: "dQw4w9WgXcQ",
+          youtubeId: "Nffzx-x3-Yc",
           price: 99,
         },
         {
           id: "video2",
-          title: "Understanding JWT authentication",
-          youtubeId: "7Q17ubqLfaM",
-          price: 149,
+          youtubeId: "_uQrJ0TkZlc",
+          price: 299,
         },
         {
           id: "video3",
-          title: "MySQL basics for beginners",
-          youtubeId: "9ylj9NR0Lcg",
-          price: 129,
+          youtubeId: "XKHEtdqhLK8",
+          price: 399,
         },
         {
           id: "video4",
-          title: "React basics (components + props)",
           youtubeId: "Ke90Tje7VS0",
-          price: 199,
+          price: 149,
         },
         {
           id: "video5",
-          title: "JavaScript async/await in 10 minutes",
+          youtubeId: "RGOj5yH7evk",
+          price: 129,
+        },
+        {
+          id: "video6",
+          youtubeId: "fBNz5xF-Kx4",
+          price: 199,
+        },
+        {
+          id: "video7",
           youtubeId: "V_Kr9OSfDeU",
           price: 99,
         },
         {
-          id: "video6",
-          title: "Node.js crash course",
-          youtubeId: "fBNz5xF-Kx4",
+          id: "video8",
+          youtubeId: "7Q17ubqLfaM",
           price: 179,
         },
         {
-          id: "video7",
-          title: "Express.js tutorial (routes + middleware)",
+          id: "video9",
           youtubeId: "L72fhGm1tfE",
           price: 159,
         },
         {
-          id: "video8",
-          title: "MySQL tutorial for beginners",
+          id: "video10",
           youtubeId: "7S_tz1z_5bA",
           price: 149,
         },
         {
-          id: "video9",
-          title: "JWT authentication explained",
+          id: "video11",
           youtubeId: "mbsmsi7l3r4",
           price: 129,
         },
         {
-          id: "video10",
-          title: "Git & GitHub basics",
-          youtubeId: "RGOj5yH7evk",
-          price: 79,
-        },
-        {
-          id: "video11",
-          title: "Deploy to Vercel (beginner friendly)",
-          youtubeId: "b6m6nT7Y8lU",
-          price: 119,
-        },
-        {
           id: "video12",
-          title: "Build a login UI (HTML/CSS)",
-          youtubeId: "1Rs2ND1ryYc",
-          price: 89,
+          youtubeId: "dQw4w9WgXcQ",
+          price: 79,
         },
       ];
 
+      const TITLE_CACHE_KEY = "kodflix-video-titles-v1";
       const STORAGE_KEY = "kodflix-demo-session";
+
+      function readTitleCache() {
+        try {
+          const raw = localStorage.getItem(TITLE_CACHE_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function writeTitleCache(cache) {
+        try {
+          localStorage.setItem(TITLE_CACHE_KEY, JSON.stringify(cache));
+        } catch {
+          // ignore storage errors
+        }
+      }
+
+      async function fetchYouTubeTitle(youtubeId) {
+        const url =
+          "https://www.youtube.com/oembed?format=json&url=" +
+          encodeURIComponent("https://www.youtube.com/watch?v=" + youtubeId);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("oEmbed failed");
+        const data = await res.json();
+        return data && data.title ? String(data.title) : null;
+      }
 
       function readSession() {
         try {
@@ -419,6 +435,51 @@
         }, []);
 
         return [session, writeSession];
+      }
+
+      function useVideoTitles(videos) {
+        const [titles, setTitles] = useState(() => readTitleCache());
+
+        useEffect(() => {
+          let cancelled = false;
+
+          async function run() {
+            const cache = { ...readTitleCache() };
+            const idsToFetch = videos
+              .map((v) => v.youtubeId)
+              .filter((id) => id && !cache[id]);
+
+            if (!idsToFetch.length) {
+              setTitles(cache);
+              return;
+            }
+
+            for (const id of idsToFetch) {
+              try {
+                const title = await fetchYouTubeTitle(id);
+                if (title) cache[id] = title;
+                writeTitleCache(cache);
+                if (!cancelled) setTitles({ ...cache });
+              } catch {
+                // keep fallback title
+              }
+            }
+          }
+
+          run();
+          return () => {
+            cancelled = true;
+          };
+        }, [videos]);
+
+        return titles;
+      }
+
+      function videoTitle(v, titles) {
+        return (
+          (titles && titles[v.youtubeId]) ||
+          "Premium Training Video"
+        );
       }
 
       function AuthPanel({ session, setSession }) {
@@ -595,6 +656,8 @@
       }
 
       function VideosPanel({ session, setSession }) {
+        const titles = useVideoTitles(DEMO_VIDEOS);
+
         function simulatePayment() {
           if (!session) return;
           writeSession({ ...session, isPaid: true });
@@ -631,7 +694,11 @@
                   React.createElement(
                     "div",
                     { className: "video-body" },
-                    React.createElement("div", { className: "video-title" }, v.title),
+                    React.createElement(
+                      "div",
+                      { className: "video-title" },
+                      videoTitle(v, titles)
+                    ),
                     React.createElement("div", { className: "video-meta" }, "Locked")
                   )
                 )
@@ -675,7 +742,11 @@
                   React.createElement(
                     "div",
                     { className: "video-body" },
-                    React.createElement("div", { className: "video-title" }, v.title),
+                    React.createElement(
+                      "div",
+                      { className: "video-title" },
+                      videoTitle(v, titles)
+                    ),
                     React.createElement("div", { className: "video-meta" }, "Locked")
                   )
                 )
@@ -720,7 +791,11 @@
                 React.createElement(
                   "div",
                   { className: "video-body" },
-                  React.createElement("div", { className: "video-title" }, v.title),
+                  React.createElement(
+                    "div",
+                    { className: "video-title" },
+                    videoTitle(v, titles)
+                  ),
                   React.createElement(
                     "div",
                     { className: "video-meta" },
